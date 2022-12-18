@@ -1,32 +1,28 @@
 #pragma once
 
 #include <stm32f4xx.h>
+#include <vector>
 
 #include "stm32f4_usart.hpp"
+#include "stm32f4_spi.hpp"
 
-extern "C" void DMA2_Stream0_IRQHandler();
+extern "C" void TIM3_IRQHandler();
 extern "C" void TIM4_IRQHandler();
-
-
-/*
-*   I1, I2, I3, In
-*   Ua Ub Uc Uab Uac Ubc
-*   
-*
-*/
+extern "C" void EXTI0_IRQHandler();
 class Analyzer
 {
 private:
-    static constexpr inline uint8_t size_buffer = 4 + 3;
     static inline Driver::USART tranceiver{USART1, 115200};
-    static inline std::array<uint16_t, 3> DMA_buffer{0};
+    static inline char buffer_string[100];
+
 public:
     static void configuration();
-    static void adc_dma_configuration();
-    static void led_configuration();
+    static void debug_led_configuration();
+    static void display_configuration();
 
-
-    friend void ::DMA2_Stream0_IRQHandler();
+    friend void ::TIM3_IRQHandler();
     friend void ::TIM4_IRQHandler();
+    friend void ::EXTI0_IRQHandler();
     friend int ::main();
+
 };

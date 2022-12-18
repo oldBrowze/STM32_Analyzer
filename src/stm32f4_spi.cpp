@@ -5,10 +5,10 @@ namespace Driver
     SPI::SPI(volatile SPI_TypeDef *_base) : _SPI_BASE{_base}
     {
         _SPI_BASE->CR1 |= (0b111 << SPI_CR1_BR_Pos) |
-                          SPI_CR1_BIDIMODE | SPI_CR1_CPOL | SPI_CR1_CPHA |
+                          SPI_CR1_BIDIMODE |
+                          //SPI_CR1_LSBFIRST |
                           SPI_CR1_BIDIOE |
-                          SPI_CR1_MSTR | 
-                          SPI_CR1_DFF |
+                          SPI_CR1_MSTR |
                           SPI_CR1_SSI |
                           SPI_CR1_SSM;
 
@@ -16,7 +16,7 @@ namespace Driver
 
         // PA12 - SPI1_CS
         GPIOA->MODER |= (0b01 << GPIO_MODER_MODE12_Pos);
-        GPIOA->BSRR = GPIO_BSRR_BS12_Msk; //по умолчанию лог. 0
+        GPIOA->BSRR = GPIO_BSRR_BS12_Msk; //по умолчанию лог. 1
         // GPIOA->OSPEEDR |= (0b11 << GPIO_OSPEEDR_OSPEED15_Pos);
         // GPIOA->BSRR = GPIO_BSRR_BS15;
 
@@ -35,25 +35,31 @@ namespace Driver
         GPIOB->OSPEEDR |= (0b11 << GPIO_OSPEEDR_OSPEED5_Pos);
     }
 
-    void SPI::transmit(const uint16_t &_command)
+    void SPI::transmit(const uint8_t &_command, bool is_command)
     {
-        GPIOA->BSRR = GPIO_BSRR_BR12_Msk;
+        if(is_command == ST7735_COMMAND)
+            AO_reset();
+        else
+            AO_set();
+
+        
+        //GPIOA->BSRR = GPIO_BSRR_BR12_Msk; //CS off
 
         _SPI_BASE->DR = _command;
 
-        // while(!(_SPI_BASE->SR & SPI_SR_TXE)); // пока SPI занят
+        while(!(_SPI_BASE->SR & SPI_SR_TXE)); // пока SPI занят
         while (_SPI_BASE->SR & SPI_SR_BSY);
 
-        GPIOA->BSRR = GPIO_BSRR_BS12_Msk;
-
-        __NOP();
-        __NOP();
-        __NOP();
-        __NOP();
+        //GPIOA->BSRR = GPIO_BSRR_BS12_Msk; //CS on
     }
 
-    void SPI::transmit(const uint8_t &_register, const uint8_t &_command)
+    void SPI::transmit(const uint8_t &_command, const uint8_t &_data)
     {
-        transmit(_register << 8 | _command);
+        AO_set();
+        transmit(_command, ST7735_COMMAND);
+
+
+        AO_reset();
+        transmit(_data, ST7735_DATA);
     }
 }

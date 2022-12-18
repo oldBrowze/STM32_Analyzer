@@ -36,6 +36,12 @@ namespace Driver
         while((_base->SR & USART_SR_TXE) == false);
     }
 
+    void USART::transmit(const uint8_t& reg, const uint8_t& cmd)
+    {
+        transmit(reg);
+        transmit(cmd);
+    }
+
     void USART::transmit(const std::string_view message)
     {
         for(const auto &i : message)
@@ -44,7 +50,6 @@ namespace Driver
             while((_base->SR & USART_SR_TXE) == false);
         }
     }
-
     template<uint8_t size> 
     void USART::transmit(const std::array<uint8_t, size>& message)
     {

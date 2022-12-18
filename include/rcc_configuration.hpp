@@ -2,7 +2,7 @@
 
 #include <stm32f4xx.h>
 
-__attribute__((constructor(101))) void RCC_enable()
+__attribute__((constructor(102))) void RCC_enable()
 {
 
     RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN |
@@ -13,8 +13,8 @@ __attribute__((constructor(101))) void RCC_enable()
                     RCC_AHB1ENR_DMA2EN;
 
     RCC->APB2ENR |= RCC_APB2ENR_USART1EN |
-                    RCC_APB2ENR_ADC1EN |
+                    RCC_APB2ENR_SPI1EN |
                     RCC_APB2ENR_SYSCFGEN;
 
-    RCC->APB1ENR |= RCC_APB1ENR_TIM4EN;
+    RCC->APB1ENR |= RCC_APB1ENR_TIM3EN | RCC_APB1ENR_TIM4EN;
 }

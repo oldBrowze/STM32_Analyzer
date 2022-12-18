@@ -25,6 +25,8 @@ public:
 
 public:
     void transmit(const uint8_t&);
+    void transmit(const uint8_t&, const uint8_t&);
+
 
     template<uint8_t size>
     void transmit(const std::array<uint8_t, size>&);

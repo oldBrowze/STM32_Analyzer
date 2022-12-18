@@ -1,22 +1,26 @@
 #include <stm32f4xx.h>
-#include <string>
 #include "analyzer.hpp"
+#include "stm32_st7735.hpp"
 
-
-extern "C" void DMA2_Stream0_IRQHandler()
-{
-    if (DMA2->LISR & DMA_LISR_TCIF0)
-        DMA2->LISR = ~DMA_LISR_TCIF0;
-
-    Analyzer::tranceiver.transmit(std::string_view{"Value: "});
-    Analyzer::tranceiver.transmit(std::to_string(ADC1->DR));
-    Analyzer::tranceiver.transmit(std::string_view{"\n=========\n"});
-}
 
 extern "C" void TIM4_IRQHandler()
 {
     if (TIM4->SR & TIM_SR_UIF_Msk)
         TIM4->SR &= ~TIM_SR_UIF_Msk;
 
-    GPIOA->ODR ^= GPIO_ODR_OD6_Msk;
+    GPIOA->ODR ^= GPIO_ODR_OD6; 
+}
+
+
+extern "C" void EXTI0_IRQHandler()
+{
+    if (EXTI->PR & EXTI_PR_PR0_Msk)
+    {
+        EXTI->PR = EXTI_PR_PR0_Msk;
+    }
+}
+
+extern "C" void SysTick_Handler()
+{
+    ST7735::__ticks++; 
 }
