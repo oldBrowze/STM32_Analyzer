@@ -1,43 +1,60 @@
+//CMSIS-based
 #include <stm32f4xx.h>
-#include <stm32f4_usart.hpp>
 
+//Hardware init
 #include "pll_configuration.hpp"
 #include "rcc_configuration.hpp"
+
+#define _DELAY_ENABLE
+
+//drivers
+#include "SPI.h"
+#include "ST7735.h"
 #include "analyzer.hpp"
-#include "stm32_st7735.hpp"
+
+
+void led_debug_enable()
+{
+    NVIC_EnableIRQ(TIM4_IRQn);
+    NVIC_SetPriority(TIM4_IRQn, 15);
+
+    TIM4->DIER |= TIM_DIER_UIE; //прерывание
+    TIM4->ARR = 10000 - 1;
+    TIM4->PSC = 8400 - 1;
+
+    TIM4->EGR |= TIM_EGR_UG;
+    TIM4->CR1 |= TIM_CR1_CEN;
+
+    GPIOA->MODER |= 0b01 << GPIO_MODER_MODE6_Pos;
+    GPIOA->OTYPER |= 0b1 << GPIO_OTYPER_OT6_Pos;
+    //GPIOA->PUPDR |= 0b01 << GPIO_PUPDR_PUPD6_Pos;
+}
 
 int main()
 {
+    using namespace Driver;
+    using namespace SPI_Settings;
+
     __enable_irq();
+    systick_enable();
+    led_debug_enable();
 
-    /* SysTick delay init */
-    NVIC_EnableIRQ(SysTick_IRQn);
-    SysTick_Config(SystemCoreClock / 1000); // 1 ms
+    SPI data_bus{SPI1_BASE}; //todo: на тестирование
+    ST7735 display{data_bus, 128, 160};
+    Analyzer analyzer{data_bus, display};
 
-    Analyzer::configuration();
-    ST7735::configuration();
+    analyzer.configuration();
+    
+    /*
+    data_bus.draw_rect(0, 128, 0, 160, ST7735::color::BLACK);
+    _delay_ms(300);
+
+    data_bus.draw_char('F', 160 / 2, 128 / 2, ST7735::color::GREEN, ST7735::color::BLACK);
+    */
 
     while(true)
     {
-        ST7735::draw_rect(0, 128, 0, 160, 0xF800);
-        ST7735::_delay_ms(100);
 
-        ST7735::draw_rect(0, 128, 0, 160, 0x07E0);
-        ST7735::_delay_ms(100);
-
-        ST7735::draw_rect(0, 128, 0, 160, 0x001F);
-        ST7735::_delay_ms(100);
-
-        ST7735::draw_rect(0, 128, 0, 160, 0xFFE0);
-        ST7735::_delay_ms(100);
-
-        ST7735::draw_rect(0, 128, 0, 160, 0xFFFF);
-        ST7735::_delay_ms(100);
-
-        ST7735::draw_rect(0, 128, 0, 160, 0x0000);
-        ST7735::_delay_ms(100);
-
-        ST7735::draw_rect(0, 128, 0, 160, 0xFA20);
-        ST7735::_delay_ms(100);
     }
+    return 0;
 }

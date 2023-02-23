@@ -1,28 +1,35 @@
 #pragma once
 
 #include <stm32f4xx.h>
-#include <vector>
+#include "stm32f4_usart.h"
 
-#include "stm32f4_usart.hpp"
-#include "stm32f4_spi.hpp"
+#include "ST7735.h"
+#include "SPI.h"
 
-extern "C" void TIM3_IRQHandler();
-extern "C" void TIM4_IRQHandler();
-extern "C" void EXTI0_IRQHandler();
+
 class Analyzer
 {
 private:
-    static inline Driver::USART tranceiver{USART1, 115200};
-    static inline char buffer_string[100];
+    enum IRQ_Priority : uint8_t
+    {
+        EXTI0_encoder_rotate,
+        EXTI2_encoder_button,
+        EXTI9_5_ADE_CF,
+        EXTI15_10_ADE_IRQ
+    };
+private:
+    Driver::USART tranceiver{USART1, 115200};
 
+    Driver::SPI &HS_bus;
+    Driver::ST7735 &display;
 public:
-    static void configuration();
-    static void debug_led_configuration();
-    static void display_configuration();
 
-    friend void ::TIM3_IRQHandler();
-    friend void ::TIM4_IRQHandler();
-    friend void ::EXTI0_IRQHandler();
-    friend int ::main();
+    Analyzer(Driver::SPI &bus, Driver::ST7735 &display);
 
+    void configuration();
+    void pin_configuration();
+    void debug_led_configuration();
+    void hs_bus_configuration();
+    void display_configuration();
+    void encoder_configuration();
 };
