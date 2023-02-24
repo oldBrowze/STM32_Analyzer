@@ -10,11 +10,11 @@ void Analyzer::configuration()
     debug_led_configuration();
     hs_bus_configuration();
     display_configuration();
+    pin_configuration();
 }
 
 void Analyzer::pin_configuration()
 {
-    #pragma region входы
     /* входы */
 
     /* 
@@ -22,33 +22,30 @@ void Analyzer::pin_configuration()
     *  PA0 - ENC_A | PA1 - ENC_B | PA2 - ENC_KEY
     */
     GPIOA->MODER |= (0b00 << GPIO_MODER_MODE0_Pos) | (0b00 << GPIO_MODER_MODE1_Pos) | (0b00 << GPIO_MODER_MODE2_Pos);
-    GPIOA->PUPDR |= (0b10 << GPIO_PUPDR_PUPD0_Pos) | (0b10 << GPIO_PUPDR_PUPD1_Pos) | (0b10 << GPIO_PUPDR_PUPD2_Pos);
+    GPIOA->PUPDR |= (0b01 << GPIO_PUPDR_PUPD0_Pos) | (0b01 << GPIO_PUPDR_PUPD1_Pos) | (0b01 << GPIO_PUPDR_PUPD2_Pos);
 
     /* 
     *  конфигурация ног для чтения энкодера(входы)
     *  PA3 - KEY1 | PA4 - KEY2 | PA5 - KEY3
     */
     GPIOA->MODER |= (0b00 << GPIO_MODER_MODE3_Pos) | (0b00 << GPIO_MODER_MODE4_Pos) | (0b00 << GPIO_MODER_MODE5_Pos);
-    GPIOA->PUPDR |= (0b10 << GPIO_PUPDR_PUPD3_Pos) | (0b10 << GPIO_PUPDR_PUPD4_Pos) | (0b10 << GPIO_PUPDR_PUPD5_Pos);
+    GPIOA->PUPDR |= (0b01 << GPIO_PUPDR_PUPD3_Pos) | (0b01 << GPIO_PUPDR_PUPD4_Pos) | (0b01 << GPIO_PUPDR_PUPD5_Pos);
 
     //ADE: IRQ0, IRQ1, CF1, CF2, CF3
 
-    //IRQ0 - PC13, IRQ1 - PC14
-    GPIOC->MODER |= (0b00 << GPIO_MODER_MODE13_Pos) | (0b00 << GPIO_MODER_MODE14_Pos);
-    GPIOC->PUPDR |= (0b10 << GPIO_PUPDR_PUPD13_Pos) | (0b10 << GPIO_PUPDR_PUPD14_Pos);
+    //CF3 - PB1, IRQ0 - PB8, IRQ1 - PB9
+    GPIOB->MODER |= (0b00 << GPIO_MODER_MODE1_Pos) | (0b00 << GPIO_MODER_MODE8_Pos) | (0b00 << GPIO_MODER_MODE9_Pos);
+    GPIOB->PUPDR |= (0b01 << GPIO_PUPDR_PUPD1_Pos) | (0b01 << GPIO_PUPDR_PUPD8_Pos) | (0b01 << GPIO_PUPDR_PUPD9_Pos);
     //CF1 - PA6, CF2 - PA7
     GPIOA->MODER |= (0b00 << GPIO_MODER_MODE6_Pos) | (0b00 << GPIO_MODER_MODE7_Pos);
-    GPIOA->PUPDR |= (0b10 << GPIO_PUPDR_PUPD6_Pos) | (0b10 << GPIO_PUPDR_PUPD7_Pos);
-    //CF3 - PB1
-    GPIOB->MODER |= (0b00 << GPIO_MODER_MODE1_Pos);
-    GPIOB->PUPDR |= (0b10 << GPIO_PUPDR_PUPD1_Pos);
+    GPIOA->PUPDR |= (0b01 << GPIO_PUPDR_PUPD6_Pos) | (0b01 << GPIO_PUPDR_PUPD7_Pos);
 
-    EXTI->IMR |= EXTI_IMR_MR0_Msk | EXTI_IMR_MR2_Msk | EXTI_IMR_MR6_Msk | 
-                    EXTI_IMR_MR3_Msk | EXTI_IMR_MR4_Msk | EXTI_IMR_MR5_Msk | 
-                    EXTI_IMR_MR7_Msk | EXTI_IMR_MR13_Msk | EXTI_IMR_MR14_Msk;
-    EXTI->FTSR |= EXTI_FTSR_TR0_Msk | EXTI_FTSR_TR2_Msk | EXTI_FTSR_TR6_Msk |
-                    EXTI_FTSR_TR3_Msk | EXTI_FTSR_TR4_Msk | EXTI_FTSR_TR5_Msk | 
-                    EXTI_FTSR_TR7_Msk | EXTI_FTSR_TR13_Msk | EXTI_FTSR_TR14_Msk;
+    EXTI->IMR |= EXTI_IMR_MR0_Msk | EXTI_IMR_MR1_Msk | EXTI_IMR_MR2_Msk | EXTI_IMR_MR3_Msk | 
+                    EXTI_IMR_MR4_Msk | EXTI_IMR_MR5_Msk | EXTI_IMR_MR6_Msk | 
+                    EXTI_IMR_MR7_Msk | EXTI_IMR_MR8_Msk | EXTI_IMR_MR9_Msk;
+    EXTI->FTSR |= EXTI_FTSR_TR0_Msk | EXTI_FTSR_TR1_Msk | EXTI_FTSR_TR2_Msk | EXTI_FTSR_TR3_Msk |
+                    EXTI_FTSR_TR4_Msk | EXTI_FTSR_TR5_Msk | EXTI_FTSR_TR6_Msk | 
+                    EXTI_FTSR_TR7_Msk | EXTI_FTSR_TR8_Msk | EXTI_FTSR_TR9_Msk;
 
     NVIC_EnableIRQ(EXTI0_IRQn);
     NVIC_EnableIRQ(EXTI1_IRQn);
@@ -66,9 +63,8 @@ void Analyzer::pin_configuration()
 
     SYSCFG->EXTICR[0] |= SYSCFG_EXTICR1_EXTI0_PA | SYSCFG_EXTICR1_EXTI1_PB | SYSCFG_EXTICR1_EXTI2_PA | SYSCFG_EXTICR1_EXTI3_PA;
     SYSCFG->EXTICR[1] |= SYSCFG_EXTICR2_EXTI4_PA | SYSCFG_EXTICR2_EXTI5_PA | SYSCFG_EXTICR2_EXTI6_PA | SYSCFG_EXTICR2_EXTI7_PA;
-    SYSCFG->EXTICR[2] |= SYSCFG_EXTICR4_EXTI13_PC | SYSCFG_EXTICR4_EXTI14_PC;
+    SYSCFG->EXTICR[2] |= SYSCFG_EXTICR3_EXTI8_PB | SYSCFG_EXTICR3_EXTI9_PB;
 
-    #pragma endregion входы
 }
 
 void Analyzer::hs_bus_configuration()

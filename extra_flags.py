@@ -16,6 +16,7 @@ env.Append(
     "-lm",
     "-lnosys",
     "-Wl,--gc-sections",
-    #"-Xlinker -print-memory-usage -Xlinker"
+    #""
+   # ""
   ]
 )

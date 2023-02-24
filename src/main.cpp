@@ -12,6 +12,10 @@
 #include "ST7735.h"
 #include "analyzer.hpp"
 
+/*  global objects */
+Driver::SPI data_bus{SPI1_BASE}; //todo: на тестирование
+Driver::ST7735 display{data_bus, 128, 160};
+Analyzer analyzer{data_bus, display};
 
 void led_debug_enable()
 {
@@ -25,8 +29,8 @@ void led_debug_enable()
     TIM4->EGR |= TIM_EGR_UG;
     TIM4->CR1 |= TIM_CR1_CEN;
 
-    GPIOA->MODER |= 0b01 << GPIO_MODER_MODE6_Pos;
-    GPIOA->OTYPER |= 0b1 << GPIO_OTYPER_OT6_Pos;
+    GPIOB->MODER |= 0b01 << GPIO_MODER_MODE0_Pos;
+    GPIOB->OTYPER |= 0b1 << GPIO_OTYPER_OT0_Pos;
     //GPIOA->PUPDR |= 0b01 << GPIO_PUPDR_PUPD6_Pos;
 }
 
@@ -38,10 +42,6 @@ int main()
     __enable_irq();
     systick_enable();
     led_debug_enable();
-
-    SPI data_bus{SPI1_BASE}; //todo: на тестирование
-    ST7735 display{data_bus, 128, 160};
-    Analyzer analyzer{data_bus, display};
 
     analyzer.configuration();
     
