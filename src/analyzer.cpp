@@ -11,6 +11,7 @@ void Analyzer::configuration()
     hs_bus_configuration();
     display_configuration();
     pin_configuration();
+    adc_configuration();
 }
 
 void Analyzer::pin_configuration()
@@ -65,6 +66,19 @@ void Analyzer::pin_configuration()
     SYSCFG->EXTICR[1] |= SYSCFG_EXTICR2_EXTI4_PA | SYSCFG_EXTICR2_EXTI5_PA | SYSCFG_EXTICR2_EXTI6_PA | SYSCFG_EXTICR2_EXTI7_PA;
     SYSCFG->EXTICR[2] |= SYSCFG_EXTICR3_EXTI8_PB | SYSCFG_EXTICR3_EXTI9_PB;
 
+    /* выходы */
+
+    /*
+        DISPLAY_CS - PA12
+        FLASH_CS - PB6
+        ADE_RESET - PB10
+        FLASH_WP - PB14
+        FLASH_HOLD - PB15
+    */
+    GPIOB->MODER |= (0b01 << GPIO_MODER_MODE6_Pos) | (0b01 << GPIO_MODER_MODE10_Pos) | (0b01 << GPIO_MODER_MODE14_Pos) | (0b01 << GPIO_MODER_MODE15_Pos);
+    GPIOB->BSRR = (0b01 << GPIO_MODER_MODE6_Pos) | GPIO_BSRR_BS10_Msk | GPIO_BSRR_BS14_Msk | GPIO_BSRR_BS15_Msk; //по умолчанию лог. 1
+
+
 }
 
 void Analyzer::hs_bus_configuration()
@@ -114,3 +128,15 @@ void Analyzer::debug_led_configuration()
     GPIOA->PUPDR |= 0b10 << GPIO_PUPDR_PUPD6_Pos;
 }
 
+void Analyzer::adc_configuration()
+{
+    NVIC_EnableIRQ(ADC_IRQn);
+
+    ADC1->CR2 = ADC_CR2_ADON;
+    ADC1->CR1 = ADC_CR1_EOCIE;
+    ADC1->SMPR2 = (0b111 << ADC_SMPR2_SMP8_Pos); //PB0 480 cycles
+    ADC1->SQR3 = (8 << ADC_SQR3_SQ1_Pos);
+
+    GPIOB->MODER |= (0b11 << GPIO_MODER_MODE0_Pos); //PB0 as analog
+    //ADC1->CR2 = ADC_CR2_SWSTART;
+}

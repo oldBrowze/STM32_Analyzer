@@ -14,7 +14,8 @@ extern "C" void EXTI4_IRQHandler();
 extern "C" void EXTI9_5_IRQHandler();
 extern "C" void EXTI15_10_IRQHandler();
 extern "C" void TIM4_IRQHandler();
-
+extern "C" void USART1_IRQHandler();
+extern "C" void ADC_IRQHandler();
 
 class Analyzer
 {
@@ -24,10 +25,11 @@ private:
         EXTI0_encoder_rotate = 1,
         EXTI2_encoder_button,
         EXTI9_5_ADE_CF,
-        EXTI15_10_ADE_IRQ
+        EXTI15_10_ADE_IRQ,
+        UART_Debug = 15
     };
 private:
-    Driver::USART debug_bus{USART1, 115200};
+    Driver::USART debug_bus{USART1, 115200, UART_Debug};
 
     Driver::SPI &HS_bus;
     Driver::ST7735 &display;
@@ -41,6 +43,7 @@ public:
     void hs_bus_configuration();
     void display_configuration();
     void encoder_configuration();
+    void adc_configuration();
 
 public:
     friend void EXTI0_IRQHandler();
@@ -51,4 +54,6 @@ public:
     friend void EXTI9_5_IRQHandler();
     friend void EXTI15_10_IRQHandler();
     friend void TIM4_IRQHandler();
+    friend void USART1_IRQHandler();
+    friend void ADC_IRQHandler();
 };

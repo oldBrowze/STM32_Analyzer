@@ -117,9 +117,9 @@ void ST7735::draw_text(const uint8_t& symbol, const uint16_t& x_pos, const uint1
 
 void ST7735::pin_configuration()
 {
-    // PA10 - ST7735_RESET
-    GPIOA->MODER |= (0b01 << GPIO_MODER_MODE10_Pos);
-    GPIOA->BSRR = GPIO_BSRR_BS10_Msk; //по умолчанию лог. 1
+    // PB13 - ST7735_RESET
+    GPIOB->MODER |= (0b01 << GPIO_MODER_MODE13_Pos);
+    GPIOB->BSRR = GPIO_BSRR_BS13_Msk; //по умолчанию лог. 1
 
     // PA11 - ST7735_AO
     GPIOA->MODER |= (0b01 << GPIO_MODER_MODE11_Pos);

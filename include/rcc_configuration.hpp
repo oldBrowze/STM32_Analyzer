@@ -14,6 +14,7 @@ __attribute__((constructor(102))) void RCC_enable()
 
     RCC->APB2ENR |= RCC_APB2ENR_USART1EN |
                     RCC_APB2ENR_SPI1EN |
+                    RCC_APB2ENR_ADC1EN |
                     RCC_APB2ENR_SYSCFGEN;
 
     RCC->APB1ENR |= RCC_APB1ENR_TIM3EN | RCC_APB1ENR_TIM4EN;

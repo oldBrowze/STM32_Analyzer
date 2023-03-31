@@ -5,13 +5,22 @@
 extern Analyzer analyzer; 
 
 
+extern "C" void USART1_IRQHandler()
+{
+    if (USART1->SR & USART_SR_RXNE_Msk)
+        TIM4->SR &= ~USART_SR_RXNE_Msk;
+
+    //analyzer.debug_bus.transmit(USART1->DR);
+}
+
 extern "C" void TIM4_IRQHandler()
 {
     if (TIM4->SR & TIM_SR_UIF_Msk)
         TIM4->SR &= ~TIM_SR_UIF_Msk;
 
-    GPIOB->ODR ^= GPIO_ODR_OD0;
+    //GPIOB->ODR ^= GPIO_ODR_OD0;
     //analyzer.debug_bus.transmit("TIM4\n");
+    ADC1->CR2 |= ADC_CR2_SWSTART;
 }
 
 /**
@@ -166,6 +175,18 @@ extern "C" void EXTI15_10_IRQHandler()
     }
 }
 
+/**
+ * @brief Обработчик ADC_VCC_CONTROL
+ * 
+ */
+extern "C" void ADC_IRQHandler()
+{
+    //if(ADC1->SR & ADC_SR_EOC)
+    //    ADC1->SR &= ~ADC_SR_EOC;
+    static char buffer[100];
+    snprintf(buffer, sizeof buffer, "ADC1 value: %lu\n", ADC1->DR);
+    analyzer.debug_bus.transmit(buffer);
+}
 
 extern uint32_t __ticks;
 extern "C" void SysTick_Handler()

@@ -20,7 +20,7 @@ public:
     //USART() = delete;
     //USART operator=(const USART&)   = delete;
     //USART(const USART_TypeDef*)     = delete;
-    USART(volatile USART_TypeDef* uart_base, const uint32_t& baudrate);
+    USART(volatile USART_TypeDef* uart_base, const uint32_t& baudrate, const uint8_t& interrupt_priority);
 
 
 public:

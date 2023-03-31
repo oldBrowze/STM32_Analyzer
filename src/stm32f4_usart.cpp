@@ -3,12 +3,14 @@
 namespace Driver
 {
     
-    USART::USART(volatile USART_TypeDef* uart_base, const uint32_t& baudrate) : _base{uart_base}, _baudrate{baudrate}
+    USART::USART(volatile USART_TypeDef* uart_base, const uint32_t& baudrate, const uint8_t& interrupt_priority) : _base{uart_base}, _baudrate{baudrate}
     {
         uart_base->CR1 = USART_CR1_UE_Msk;
         uart_base->BRR = 84'000'000 / baudrate;
-        uart_base->CR1 |= USART_CR1_TE_Msk;
+        uart_base->CR1 |= USART_CR1_TE_Msk | USART_CR1_RE_Msk | USART_CR1_RXNEIE_Msk;
 
+        NVIC_EnableIRQ(USART1_IRQn);
+        NVIC_SetPriority(USART1_IRQn, interrupt_priority);
         pin_configuration();
     }
     
@@ -16,12 +18,10 @@ namespace Driver
     {
         //TODO:на каждый uart свой пин сделать
 
-        //PA9 - Tx
+        //PA9 - Tx,  PA10 - Rx
         
-        GPIOA->MODER |= (0b10 << GPIO_MODER_MODER9_Pos);
-        GPIOA->AFR[1] |= (0b111 << GPIO_AFRH_AFSEL9_Pos);
-        
-        
+        GPIOA->MODER |= (0b10 << GPIO_MODER_MODER9_Pos) | (0b10 << GPIO_MODER_MODER10_Pos);
+        GPIOA->AFR[1] |= (0b111 << GPIO_AFRH_AFSEL9_Pos) | (0b111 << GPIO_AFRH_AFSEL10_Pos);
 /*
         // PB6 - Tx 
 

@@ -23,14 +23,14 @@ void led_debug_enable()
     NVIC_SetPriority(TIM4_IRQn, 15);
 
     TIM4->DIER |= TIM_DIER_UIE; //прерывание
-    TIM4->ARR = 10000 - 1;
+    TIM4->ARR = 20000 - 1;
     TIM4->PSC = 8400 - 1;
 
     TIM4->EGR |= TIM_EGR_UG;
     TIM4->CR1 |= TIM_CR1_CEN;
 
-    GPIOB->MODER |= 0b01 << GPIO_MODER_MODE0_Pos;
-    GPIOB->OTYPER |= 0b1 << GPIO_OTYPER_OT0_Pos;
+    //GPIOB->MODER |= 0b01 << GPIO_MODER_MODE0_Pos;
+    //GPIOB->OTYPER |= 0b1 << GPIO_OTYPER_OT0_Pos;
     //GPIOA->PUPDR |= 0b01 << GPIO_PUPDR_PUPD6_Pos;
 }
 
@@ -43,8 +43,8 @@ int main()
     systick_enable();
     led_debug_enable();
 
-    analyzer.configuration();
-    
+    //analyzer.configuration();
+    analyzer.adc_configuration();
     /*
     data_bus.draw_rect(0, 128, 0, 160, ST7735::color::BLACK);
     _delay_ms(300);
