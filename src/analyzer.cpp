@@ -1,5 +1,6 @@
 #include "analyzer.hpp"
 
+
 Analyzer::Analyzer(Driver::SPI &bus, Driver::ST7735 &display) : HS_bus{bus}, display{display}
 {
 
@@ -7,11 +8,11 @@ Analyzer::Analyzer(Driver::SPI &bus, Driver::ST7735 &display) : HS_bus{bus}, dis
 
 void Analyzer::configuration()
 {
-    debug_led_configuration();
+    //debug_led_configuration();
     hs_bus_configuration();
-    display_configuration();
+    //display_configuration();
     pin_configuration();
-    adc_configuration();
+    //adc_configuration();
 }
 
 void Analyzer::pin_configuration()
@@ -29,9 +30,12 @@ void Analyzer::pin_configuration()
     *  конфигурация ног для чтения энкодера(входы)
     *  PA3 - KEY1 | PA4 - KEY2 | PA5 - KEY3
     */
-    GPIOA->MODER |= (0b00 << GPIO_MODER_MODE3_Pos) | (0b00 << GPIO_MODER_MODE4_Pos) | (0b00 << GPIO_MODER_MODE5_Pos);
-    GPIOA->PUPDR |= (0b01 << GPIO_PUPDR_PUPD3_Pos) | (0b01 << GPIO_PUPDR_PUPD4_Pos) | (0b01 << GPIO_PUPDR_PUPD5_Pos);
-
+    //GPIOA->MODER |= (0b00 << GPIO_MODER_MODE3_Pos) | (0b00 << GPIO_MODER_MODE4_Pos) | (0b00 << GPIO_MODER_MODE5_Pos);
+    //GPIOA->PUPDR |= (0b01 << GPIO_PUPDR_PUPD3_Pos) | (0b01 << GPIO_PUPDR_PUPD4_Pos) | (0b01 << GPIO_PUPDR_PUPD5_Pos);
+    //EXTI->IMR |= EXTI_IMR_MR3_Msk | EXTI_IMR_MR4_Msk | EXTI_IMR_MR5_Msk;
+    //EXTI->RTSR |= EXTI_RTSR_TR3_Msk | EXTI_RTSR_TR4_Msk | EXTI_RTSR_TR5_Msk;
+    
+    
     //ADE: IRQ0, IRQ1, CF1, CF2, CF3
 
     //CF3 - PB1, IRQ0 - PB8, IRQ1 - PB9
@@ -41,26 +45,29 @@ void Analyzer::pin_configuration()
     GPIOA->MODER |= (0b00 << GPIO_MODER_MODE6_Pos) | (0b00 << GPIO_MODER_MODE7_Pos);
     GPIOA->PUPDR |= (0b01 << GPIO_PUPDR_PUPD6_Pos) | (0b01 << GPIO_PUPDR_PUPD7_Pos);
 
-    EXTI->IMR |= EXTI_IMR_MR0_Msk | EXTI_IMR_MR1_Msk | EXTI_IMR_MR2_Msk | EXTI_IMR_MR3_Msk | 
-                    EXTI_IMR_MR4_Msk | EXTI_IMR_MR5_Msk | EXTI_IMR_MR6_Msk | 
+    //подтяжка кнопок +пит
+    GPIOA->PUPDR |= (0b01 << GPIO_PUPDR_PUPD0_Pos) | (0b01 << GPIO_PUPDR_PUPD1_Pos) |\
+                    (0b01 << GPIO_PUPDR_PUPD2_Pos) | (0b01 << GPIO_PUPDR_PUPD5_Pos) |\
+                    (0b10 << GPIO_PUPDR_PUPD8_Pos) | (0b10 << GPIO_PUPDR_PUPD9_Pos);
+
+    EXTI->IMR |= EXTI_IMR_MR0_Msk | EXTI_IMR_MR1_Msk | EXTI_IMR_MR2_Msk | EXTI_IMR_MR6_Msk | 
                     EXTI_IMR_MR7_Msk | EXTI_IMR_MR8_Msk | EXTI_IMR_MR9_Msk;
-    EXTI->FTSR |= EXTI_FTSR_TR0_Msk | EXTI_FTSR_TR1_Msk | EXTI_FTSR_TR2_Msk | EXTI_FTSR_TR3_Msk |
-                    EXTI_FTSR_TR4_Msk | EXTI_FTSR_TR5_Msk | EXTI_FTSR_TR6_Msk | 
-                    EXTI_FTSR_TR7_Msk | EXTI_FTSR_TR8_Msk | EXTI_FTSR_TR9_Msk;
+    EXTI->FTSR |= EXTI_FTSR_TR0_Msk | EXTI_FTSR_TR1_Msk | EXTI_FTSR_TR2_Msk | EXTI_FTSR_TR6_Msk | EXTI_FTSR_TR7_Msk;
+    EXTI->RTSR |= EXTI_FTSR_TR8_Msk | EXTI_RTSR_TR9_Msk;
 
     NVIC_EnableIRQ(EXTI0_IRQn);
     NVIC_EnableIRQ(EXTI1_IRQn);
     NVIC_EnableIRQ(EXTI2_IRQn);
-    NVIC_EnableIRQ(EXTI3_IRQn);
-    NVIC_EnableIRQ(EXTI4_IRQn);
+    //NVIC_EnableIRQ(EXTI3_IRQn);
+    //NVIC_EnableIRQ(EXTI4_IRQn);
     NVIC_EnableIRQ(EXTI9_5_IRQn);
-    NVIC_EnableIRQ(EXTI15_10_IRQn);
+    //NVIC_EnableIRQ(EXTI15_10_IRQn);
 
     NVIC_SetPriority(EXTI0_IRQn, IRQ_Priority::EXTI0_encoder_rotate);
     NVIC_SetPriority(EXTI1_IRQn, IRQ_Priority::EXTI9_5_ADE_CF);
     NVIC_SetPriority(EXTI2_IRQn, IRQ_Priority::EXTI2_encoder_button);
     NVIC_SetPriority(EXTI9_5_IRQn, IRQ_Priority::EXTI9_5_ADE_CF);
-    NVIC_SetPriority(EXTI15_10_IRQn, IRQ_Priority::EXTI15_10_ADE_IRQ);
+    //VIC_SetPriority(EXTI15_10_IRQn, IRQ_Priority::EXTI15_10_ADE_IRQ);
 
     SYSCFG->EXTICR[0] |= SYSCFG_EXTICR1_EXTI0_PA | SYSCFG_EXTICR1_EXTI1_PB | SYSCFG_EXTICR1_EXTI2_PA | SYSCFG_EXTICR1_EXTI3_PA;
     SYSCFG->EXTICR[1] |= SYSCFG_EXTICR2_EXTI4_PA | SYSCFG_EXTICR2_EXTI5_PA | SYSCFG_EXTICR2_EXTI6_PA | SYSCFG_EXTICR2_EXTI7_PA;
@@ -140,3 +147,31 @@ void Analyzer::adc_configuration()
     GPIOB->MODER |= (0b11 << GPIO_MODER_MODE0_Pos); //PB0 as analog
     //ADC1->CR2 = ADC_CR2_SWSTART;
 }
+
+void Analyzer::getInfo()
+{
+    static char buffer[1000];
+    snprintf(buffer, sizeof buffer, "Voltage A: %lu\n \
+                                    Voltage B: %lu\n \
+                                    Voltage C: %lu\n \
+                                    Current A: %lu\n \
+                                    Current B: %lu\n \
+                                    Current C: %lu\n \
+                                    aPower A: %lu\n \
+                                    aPower B: %lu\n \
+                                    aPower C: %lu\n ", 1UL, 1UL, 1UL, 1UL, 1UL, 1UL, 1UL, 1UL, 1UL);
+    debug_bus.transmit(buffer);
+}
+
+/*
+uint32_t Analyzer::DSP_receive(const uint16_t& reg_address)
+{
+    HS_bus.transmit(0x1); //чтение
+    
+    HS_bus.transmit(reg_address >> 8); 
+    HS_bus.transmit(reg_address && 0xFF);
+
+    Прием в  регистр
+    return value
+}
+*/

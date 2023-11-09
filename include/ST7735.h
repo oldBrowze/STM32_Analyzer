@@ -7,23 +7,6 @@
 #include "ST7735_fonts.hpp"
 
 
-#ifdef _DELAY_ENABLE
-
-volatile uint32_t __ticks = 0;
-void _delay_ms(const uint32_t& ms)
-{
-    uint32_t current = __ticks;
-    while((__ticks - current) <= ms);
-}
-
-void systick_enable()
-{
-    NVIC_EnableIRQ(SysTick_IRQn);
-    SysTick_Config(84'000'000ul / 1000); // 1 ms
-}
-
-#endif
-
 namespace Driver
 {
 

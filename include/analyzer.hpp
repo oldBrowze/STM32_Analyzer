@@ -6,6 +6,10 @@
 #include "ST7735.h"
 #include "SPI.h"
 
+#include "ADE7880_config.hpp"
+#include "ADE7880_register.hpp"
+
+
 extern "C" void EXTI0_IRQHandler();
 extern "C" void EXTI1_IRQHandler();
 extern "C" void EXTI2_IRQHandler();
@@ -16,6 +20,7 @@ extern "C" void EXTI15_10_IRQHandler();
 extern "C" void TIM4_IRQHandler();
 extern "C" void USART1_IRQHandler();
 extern "C" void ADC_IRQHandler();
+extern void _delay_ms(const uint32_t& ms);
 
 class Analyzer
 {
@@ -37,6 +42,7 @@ public:
 
     Analyzer(Driver::SPI &bus, Driver::ST7735 &display);
 
+    /* методы конфигурирования */
     void configuration();
     void pin_configuration();
     void debug_led_configuration();
@@ -45,6 +51,34 @@ public:
     void encoder_configuration();
     void adc_configuration();
 
+    /* общение с ЦОС */
+    void CS_set()           { GPIOA->BSRR = GPIO_BSRR_BR12_Msk; }
+    void CS_reset()        { GPIOA->BSRR = GPIO_BSRR_BS12_Msk; }
+
+    //uint32_t DSP_receive(const uint16_t& reg_address);
+
+    template<class data_type>
+    void DSP_transmit(const uint16_t& reg_address, const data_type& reg_value)
+    {
+        CS_set();
+        _delay_ms(1);
+
+        HS_bus.transmit(REG_WRITE); //нулевой бит - !разрешение на запись (0 - да, 1 - нет)
+
+        //отправка адреса регистра
+        
+        HS_bus.transmit(reg_address >> 8); // выделение старшего бита
+        HS_bus.transmit(reg_address && 0xFF); // младшего
+
+        for(uint8_t i = sizeof(data_type) - 1; i >= 0; i--)
+            HS_bus.transmit(reg_value >> (i * 8));    
+
+        CS_reset();    
+    }
+    /* методы обработки значений */
+
+    /* отладочные методы */
+    void getInfo();
 public:
     friend void EXTI0_IRQHandler();
     friend void EXTI1_IRQHandler();

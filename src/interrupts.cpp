@@ -8,19 +8,30 @@ extern Analyzer analyzer;
 extern "C" void USART1_IRQHandler()
 {
     if (USART1->SR & USART_SR_RXNE_Msk)
-        TIM4->SR &= ~USART_SR_RXNE_Msk;
+        USART1->SR &= ~USART_SR_RXNE_Msk;
 
     //analyzer.debug_bus.transmit(USART1->DR);
+    static char buffer[100];
+    snprintf(buffer, sizeof buffer, "Receive: %c\n", static_cast<int>(USART1->DR)); // исключительно
+    analyzer.debug_bus.transmit(buffer);
 }
 
+/**
+ * @brief Обработчик прерывания TIM4
+ * 
+ */
 extern "C" void TIM4_IRQHandler()
 {
     if (TIM4->SR & TIM_SR_UIF_Msk)
         TIM4->SR &= ~TIM_SR_UIF_Msk;
 
     //GPIOB->ODR ^= GPIO_ODR_OD0;
-    //analyzer.debug_bus.transmit("TIM4\n");
-    ADC1->CR2 |= ADC_CR2_SWSTART;
+
+    //static char buffer[100];
+    //snprintf(buffer, sizeof buffer, "TIM4_IRQ");
+    analyzer.debug_bus.transmit("TIM4_IRQ\n");
+    
+    //ADC1->CR2 |= ADC_CR2_SWSTART;
 }
 
 /**
@@ -38,10 +49,12 @@ extern "C" void EXTI0_IRQHandler()
         if (GPIOA->IDR & GPIO_IDR_ID1) //влево
         {
             analyzer.debug_bus.transmit("EXTI0_left\n");
+            //analyzer.DSP_transmit16(0xABD, 0xAD);
         }
         else //вправо
         {
             analyzer.debug_bus.transmit("EXTI0_right\n");
+            //analyzer.DSP_transmit32(0xABF, 0xAA);
         }
     }
 
@@ -74,6 +87,12 @@ extern "C" void EXTI2_IRQHandler()
         EXTI->PR = EXTI_PR_PR2_Msk;
 
         analyzer.debug_bus.transmit("EXTI2\n");
+        
+        analyzer.DSP_transmit<uint8_t>(0xABF, 0xAB);
+        _delay_ms(1);
+        analyzer.DSP_transmit<uint16_t>(0xABF, 0xFADE);
+        _delay_ms(1);
+        analyzer.DSP_transmit<uint32_t>(0xABF, 0xFADED);
     }
 }
 
@@ -150,6 +169,7 @@ extern "C" void EXTI9_5_IRQHandler()
 
         analyzer.debug_bus.transmit("EXTI9_5_IRQ1\n");
     }
+    
 }
 
 /**
@@ -181,14 +201,16 @@ extern "C" void EXTI15_10_IRQHandler()
  */
 extern "C" void ADC_IRQHandler()
 {
+    /*
     //if(ADC1->SR & ADC_SR_EOC)
     //    ADC1->SR &= ~ADC_SR_EOC;
     static char buffer[100];
     snprintf(buffer, sizeof buffer, "ADC1 value: %lu\n", ADC1->DR);
     analyzer.debug_bus.transmit(buffer);
+    */
 }
 
-extern uint32_t __ticks;
+extern volatile uint32_t __ticks;
 extern "C" void SysTick_Handler()
 {
     __ticks++;

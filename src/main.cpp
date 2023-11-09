@@ -5,7 +5,18 @@
 #include "pll_configuration.hpp"
 #include "rcc_configuration.hpp"
 
-#define _DELAY_ENABLE
+volatile uint32_t __ticks = 0;
+void _delay_ms(const uint32_t& ms)
+{
+    uint32_t current = __ticks;
+    while((__ticks - current) <= ms);
+}
+
+void systick_enable()
+{
+    NVIC_EnableIRQ(SysTick_IRQn);
+    SysTick_Config(84'000'000ul / 1000); // 1 ms
+}
 
 //drivers
 #include "SPI.h"
@@ -17,6 +28,7 @@ Driver::SPI data_bus{SPI1_BASE}; //todo: на тестирование
 Driver::ST7735 display{data_bus, 128, 160};
 Analyzer analyzer{data_bus, display};
 
+/// @brief debug only
 void led_debug_enable()
 {
     NVIC_EnableIRQ(TIM4_IRQn);
@@ -36,15 +48,15 @@ void led_debug_enable()
 
 int main()
 {
-    using namespace Driver;
-    using namespace SPI_Settings;
-
+    //using namespace Driver;
+    //using namespace SPI_Settings;
+    RCC_enable();
     __enable_irq();
-    systick_enable();
-    led_debug_enable();
 
-    //analyzer.configuration();
-    analyzer.adc_configuration();
+    systick_enable();
+    analyzer.configuration();
+    display.pin_configuration();
+ 
     /*
     data_bus.draw_rect(0, 128, 0, 160, ST7735::color::BLACK);
     _delay_ms(300);
@@ -54,7 +66,11 @@ int main()
 
     while(true)
     {
-
+        /* analyzer.DSP_transmit<uint8_t>(0xABF, 0xAB);
+        _delay_ms(10);
+        analyzer.DSP_transmit<uint16_t>(0xABF, 0xFADE);
+        _delay_ms(10);
+        analyzer.DSP_transmit<uint32_t>(0xABF, 0xFADED); */
     }
     return 0;
 }
