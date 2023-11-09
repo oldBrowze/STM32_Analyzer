@@ -49,12 +49,12 @@ extern "C" void EXTI0_IRQHandler()
         if (GPIOA->IDR & GPIO_IDR_ID1) //влево
         {
             analyzer.debug_bus.transmit("EXTI0_left\n");
-            //analyzer.DSP_transmit16(0xABD, 0xAD);
+            analyzer.DSP_transmit<uint16_t>(0xABF, 0xFADE);
         }
         else //вправо
         {
             analyzer.debug_bus.transmit("EXTI0_right\n");
-            //analyzer.DSP_transmit32(0xABF, 0xAA);
+            analyzer.DSP_transmit<uint32_t>(0xABF, 0xFADED);
         }
     }
 
@@ -87,12 +87,7 @@ extern "C" void EXTI2_IRQHandler()
         EXTI->PR = EXTI_PR_PR2_Msk;
 
         analyzer.debug_bus.transmit("EXTI2\n");
-        
         analyzer.DSP_transmit<uint8_t>(0xABF, 0xAB);
-        _delay_ms(1);
-        analyzer.DSP_transmit<uint16_t>(0xABF, 0xFADE);
-        _delay_ms(1);
-        analyzer.DSP_transmit<uint32_t>(0xABF, 0xFADED);
     }
 }
 

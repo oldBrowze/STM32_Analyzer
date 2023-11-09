@@ -66,11 +66,11 @@ public:
         HS_bus.transmit(REG_WRITE); //нулевой бит - !разрешение на запись (0 - да, 1 - нет)
 
         //отправка адреса регистра
-        
-        HS_bus.transmit(reg_address >> 8); // выделение старшего бита
-        HS_bus.transmit(reg_address && 0xFF); // младшего
 
-        for(uint8_t i = sizeof(data_type) - 1; i >= 0; i--)
+        HS_bus.transmit(reg_address >> 8); // выделение старшего бита
+        HS_bus.transmit(reg_address & 0xFF); // младшего
+
+        for(int8_t i = sizeof(data_type) - 1; i >= 0; i--)
             HS_bus.transmit(reg_value >> (i * 8));    
 
         CS_reset();    

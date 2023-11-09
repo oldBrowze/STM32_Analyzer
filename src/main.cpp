@@ -64,13 +64,14 @@ int main()
     data_bus.draw_char('F', 160 / 2, 128 / 2, ST7735::color::GREEN, ST7735::color::BLACK);
     */
 
-    while(true)
+    while(true) 
     {
-        /* analyzer.DSP_transmit<uint8_t>(0xABF, 0xAB);
-        _delay_ms(10);
-        analyzer.DSP_transmit<uint16_t>(0xABF, 0xFADE);
-        _delay_ms(10);
-        analyzer.DSP_transmit<uint32_t>(0xABF, 0xFADED); */
+        analyzer.DSP_transmit<uint8_t>(0xABA, 0xAB);
+        _delay_ms(1);
+        analyzer.DSP_transmit<uint16_t>(0xABB, 0xFADE);
+        _delay_ms(1);
+        analyzer.DSP_transmit<uint32_t>(0xABC, 0xFADED);
+        _delay_ms(1);
     }
     return 0;
 }
