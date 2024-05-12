@@ -97,7 +97,7 @@ public:
     }
 
     template<class data_type>
-    uint8_t DSP_receive_16(const data_type& reg_address)
+    uint16_t DSP_receive_16(const data_type& reg_address)
     {
         uint8_t 
             value1 = 0,
@@ -121,7 +121,7 @@ public:
     }
 
     template<class data_type>
-    uint8_t DSP_receive_32(const data_type& reg_address)
+    uint32_t DSP_receive_32(const data_type& reg_address)
     {
         uint8_t 
             value1 = 0,
