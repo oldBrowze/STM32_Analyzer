@@ -58,7 +58,7 @@ private:
         AO_set();
         transceiver.transmit(data);
     }
-
+public:
     void AO_set() noexcept          { GPIOA->BSRR = GPIO_BSRR_BS10_Msk; }
     void AO_reset() noexcept        { GPIOA->BSRR = GPIO_BSRR_BR10_Msk; }
     void RST_set() noexcept         { GPIOA->BSRR = GPIO_BSRR_BS11_Msk; }

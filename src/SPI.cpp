@@ -32,6 +32,16 @@ void Driver::SPI::config(std::uint32_t settings1, std::uint32_t settings2)
     //periph->CR1 |= SPI_CR1_SPE;
 }
 
+uint8_t Driver::SPI::receive()
+{
+    uint8_t value = 0;
+    while(SPI1->SR & SPI_SR_BSY);
+    while(!(SPI1->SR & SPI_SR_RXNE));
+
+    value = SPI1->DR;
+
+    return value;
+}
 
 void Driver::SPI::transmit(const uint8_t& _data)
 {

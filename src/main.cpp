@@ -4,7 +4,7 @@
 //Hardware init
 #include "pll_configuration.hpp"
 #include "rcc_configuration.hpp"
-
+volatile bool flag = false;
 volatile uint32_t __ticks = 0;
 void _delay_ms(const uint32_t& ms)
 {
@@ -15,7 +15,7 @@ void _delay_ms(const uint32_t& ms)
 void systick_enable()
 {
     NVIC_EnableIRQ(SysTick_IRQn);
-    SysTick_Config(84'000'000ul / 1000); // 1 ms
+    SysTick_Config(84'000'000ul / 1'000); // 1 ms
 }
 
 //drivers
@@ -27,6 +27,8 @@ void systick_enable()
 Driver::SPI data_bus{SPI1_BASE}; //todo: на тестирование
 Driver::ST7735 display{data_bus, 128, 160};
 Analyzer analyzer{data_bus, display};
+
+//bool encoder_isPressed = false;
 
 /// @brief debug only
 void led_debug_enable()
@@ -46,13 +48,31 @@ void led_debug_enable()
     //GPIOA->PUPDR |= 0b01 << GPIO_PUPDR_PUPD6_Pos;
 }
 
+void ade_connect()
+{
+    analyzer.RST_low();
+    _delay_ms(1);
+    analyzer.RST_high();
+        
+    _delay_ms(200);
+        
+    for(int i = 0; i < 3; i++)
+    {
+        analyzer.CS_set();
+        _delay_ms(1);
+        analyzer.CS_reset();
+    }
+
+    analyzer.SPI_choose();
+}
+
 int main()
 {
     //using namespace Driver;
     //using namespace SPI_Settings;
     RCC_enable();
     __enable_irq();
-
+    NVIC_SetPriority(SysTick_IRQn, 0);
     systick_enable();
     analyzer.configuration();
     display.pin_configuration();
@@ -63,15 +83,14 @@ int main()
 
     data_bus.draw_char('F', 160 / 2, 128 / 2, ST7735::color::GREEN, ST7735::color::BLACK);
     */
-
     while(true) 
     {
-        analyzer.DSP_transmit<uint8_t>(0xABA, 0xAB);
-        _delay_ms(1);
-        analyzer.DSP_transmit<uint16_t>(0xABB, 0xFADE);
-        _delay_ms(1);
-        analyzer.DSP_transmit<uint32_t>(0xABC, 0xFADED);
-        _delay_ms(1);
+        if(flag) continue;
+
+        ade_connect();
+        
+        
+        flag = true;
     }
     return 0;
 }

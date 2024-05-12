@@ -45,7 +45,7 @@ public:
 
     void config(std::uint32_t settings1, std::uint32_t settings2);
     void transmit(const uint8_t&);  
-    const uint8_t receive();
+    uint8_t receive();
     void pin_config();
 };
 };

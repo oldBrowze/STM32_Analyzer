@@ -3,18 +3,23 @@
 
 Analyzer::Analyzer(Driver::SPI &bus, Driver::ST7735 &display) : HS_bus{bus}, display{display}
 {
-
+    encoder = 0;
 }
 
 void Analyzer::configuration()
 {
-    //debug_led_configuration();
     hs_bus_configuration();
     //display_configuration();
     pin_configuration();
     //adc_configuration();
 }
 
+void Analyzer::DSP_configuration()
+{
+    SPI_choose();
+
+    //кофиг
+}
 void Analyzer::pin_configuration()
 {
     /* входы */
@@ -76,14 +81,18 @@ void Analyzer::pin_configuration()
     /* выходы */
 
     /*
+        ADE_CS - PA8
         DISPLAY_CS - PA12
         FLASH_CS - PB6
         ADE_RESET - PB10
         FLASH_WP - PB14
         FLASH_HOLD - PB15
     */
+    GPIOA->MODER |= (0b01 << GPIO_MODER_MODE8_Pos);
+    GPIOA->BSRR = GPIO_BSRR_BS8;
+
     GPIOB->MODER |= (0b01 << GPIO_MODER_MODE6_Pos) | (0b01 << GPIO_MODER_MODE10_Pos) | (0b01 << GPIO_MODER_MODE14_Pos) | (0b01 << GPIO_MODER_MODE15_Pos);
-    GPIOB->BSRR = (0b01 << GPIO_MODER_MODE6_Pos) | GPIO_BSRR_BS10_Msk | GPIO_BSRR_BS14_Msk | GPIO_BSRR_BS15_Msk; //по умолчанию лог. 1
+    RST_high();
 
 
 }
@@ -97,7 +106,6 @@ void Analyzer::hs_bus_configuration()
     HS_bus.config(CR1::BR_DIV_16 | CR1::BIDIMODE | 
                         CR1::BIDIOE | CR1::MSTR |
                         CR1::SSI | CR1::SSM, 0x0);
-    
     HS_bus.enable();
 }
 

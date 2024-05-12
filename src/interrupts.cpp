@@ -3,8 +3,7 @@
 
 
 extern Analyzer analyzer; 
-
-
+extern bool flag;
 extern "C" void USART1_IRQHandler()
 {
     if (USART1->SR & USART_SR_RXNE_Msk)
@@ -48,13 +47,15 @@ extern "C" void EXTI0_IRQHandler()
 
         if (GPIOA->IDR & GPIO_IDR_ID1) //влево
         {
-            analyzer.debug_bus.transmit("EXTI0_left\n");
-            analyzer.DSP_transmit<uint16_t>(0xABF, 0xFADE);
+            analyzer.debug_bus.transmit("EXTI0_left (SPI transmit)\n");
+            analyzer.DSP_transmit<uint16_t>(0x0ABC, 0xFADE);
+            //analyzer.RST_high();
         }
         else //вправо
         {
             analyzer.debug_bus.transmit("EXTI0_right\n");
-            analyzer.DSP_transmit<uint32_t>(0xABF, 0xFADED);
+            //analyzer.RST_low();
+            //analyzer.DSP_transmit<uint32_t>(0xABC, 0xFADED);
         }
     }
 
@@ -86,8 +87,16 @@ extern "C" void EXTI2_IRQHandler()
     {
         EXTI->PR = EXTI_PR_PR2_Msk;
 
-        analyzer.debug_bus.transmit("EXTI2\n");
-        analyzer.DSP_transmit<uint8_t>(0xABF, 0xAB);
+/*
+        if(GPIOB->IDR & GPIO_IDR_ID10)
+            GPIOB->BSRR = GPIO_BSRR_BR10;    
+        else
+            GPIOB->BSRR = GPIO_BSRR_BS10;
+*/
+        analyzer.debug_bus.transmit("Encoder is pressed. Flag is false\n");
+
+        flag = false;
+
     }
 }
 
@@ -209,4 +218,5 @@ extern volatile uint32_t __ticks;
 extern "C" void SysTick_Handler()
 {
     __ticks++;
+    //analyzer.debug_bus.transmit("systick\n");
 }
